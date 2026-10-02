@@ -1,8 +1,0 @@
-#pragma once
-class StickTest
-{
-public:
-	StickTest();
-	~StickTest();
-};
-

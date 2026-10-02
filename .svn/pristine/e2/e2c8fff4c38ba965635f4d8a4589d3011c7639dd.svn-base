@@ -1,8 +1,0 @@
-transport:
-  type: udp            # udp | tcp | pipe (추후 교체)
-  state_bind_host: "0.0.0.0"
-  state_port: 50000
-  cmd_host: "127.0.0.1"
-  cmd_port: 50001
-
-recv_timeout_ms: 20
