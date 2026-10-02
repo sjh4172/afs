@@ -1,0 +1,15 @@
+﻿  STICK.cpp
+C:\Users\HQS-02\Documents\DDAAS\SRC\HQS\STICK\STICK.cpp(42,12): warning C4273: 'stickInput': dll 연결이 일치하지 않습니다.
+      C:\Users\HQS-02\Documents\DDAAS\SRC\HQS\STICK\STICK.h(98,31):
+      'stickInput'의 이전 정의를 참조하십시오.
+  
+C:\Users\HQS-02\Documents\DDAAS\SRC\HQS\STICK\STICK.cpp(43,10): warning C4273: 'stickCmd': dll 연결이 일치하지 않습니다.
+      C:\Users\HQS-02\Documents\DDAAS\SRC\HQS\STICK\STICK.h(99,30):
+      'stickCmd'의 이전 정의를 참조하십시오.
+  
+     C:\Users\HQS-02\Documents\DDAAS\SRC\HQS\Release\STICK.lib 라이브러리 및 C:\Users\HQS-02\Documents\DDAAS\SRC\HQS\Release\STICK.exp 개체를 생성하고 있습니다.
+  코드를 생성하고 있습니다.
+  Previous IPDB not found, fall back to full compilation.
+  All 6 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  코드를 생성했습니다.
+  STICK.vcxproj -> C:\Users\HQS-02\Documents\DDAAS\SRC\HQS\Release\STICK.dll

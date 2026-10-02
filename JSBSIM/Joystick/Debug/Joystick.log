@@ -1,0 +1,36 @@
+﻿빌드 시작: 2026-07-29 오전 11:20:40
+     1>2 노드의 "C:\Users\hoon4\Documents\AFS\JSBSIM\Joystick\Joystick.vcxproj" 프로젝트(Rebuild 대상)입니다.
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\hoon4\Desktop\sjh\02.AI_Model\jsbsim-1.0.0\jsbsim-1.0.0\src" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ClientJoystick.cpp CommJoystcik.cpp ServerJoystick.cpp StickTest.cpp
+         StickTest.cpp
+     1>c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.cpp(33): warning C4273: 'getStickRun' : dll 링크가 일치하지 않습니다.
+                 c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.h(20) : 'getStickRun'의 이전 정의를 참조하십시오.
+     1>c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.cpp(34): warning C4273: 'setStickRun' : dll 링크가 일치하지 않습니다.
+                 c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.h(21) : 'setStickRun'의 이전 정의를 참조하십시오.
+     1>c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.cpp(35): warning C4273: 'getStickQuit' : dll 링크가 일치하지 않습니다.
+                 c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.h(22) : 'getStickQuit'의 이전 정의를 참조하십시오.
+     1>c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.cpp(36): warning C4273: 'setStickQuit' : dll 링크가 일치하지 않습니다.
+                 c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.h(23) : 'setStickQuit'의 이전 정의를 참조하십시오.
+     1>c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.cpp(38): warning C4273: 'getStickPose' : dll 링크가 일치하지 않습니다.
+                 c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.h(25) : 'getStickPose'의 이전 정의를 참조하십시오.
+     1>c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.cpp(47): warning C4273: 'stickBase' : dll 링크가 일치하지 않습니다.
+                 c:\users\hoon4\documents\afs\jsbsim\joystick\sticktest.h(24) : 'stickBase'의 이전 정의를 참조하십시오.
+         ServerJoystick.cpp
+     1>c:\users\hoon4\documents\afs\jsbsim\joystick\serverjoystick.cpp(47): warning C4273: 'recvJoystickMessage' : dll 링크가 일치하지 않습니다.
+                 c:\users\hoon4\documents\afs\jsbsim\joystick\serverjoystick.h(33) : 'recvJoystickMessage'의 이전 정의를 참조하십시오.
+         CommJoystcik.cpp
+     1>c:\users\hoon4\documents\afs\jsbsim\joystick\commjoystcik.cpp(122): warning C4309: 'static_cast' : 상수 값이 잘립니다.
+         ClientJoystick.cpp
+         코드를 생성하고 있습니다...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\hoon4\Documents\AFS\JSBSIM\Debug\Joystick.dll" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\hoon4\Desktop\sjh\02.AI_Model\jsbsim-1.0.0\jsbsim-1.0.0\build\src\Debug" JSBSim.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"C:\Users\hoon4\Documents\AFS\JSBSIM\Debug\Joystick.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\hoon4\Documents\AFS\JSBSIM\Debug\Joystick.lib" /MACHINE:X86 /DLL Debug\ClientJoystick.obj
+         Debug\CommJoystcik.obj
+         Debug\ServerJoystick.obj
+         Debug\StickTest.obj
+            C:\Users\hoon4\Documents\AFS\JSBSIM\Debug\Joystick.lib 라이브러리 및 C:\Users\hoon4\Documents\AFS\JSBSIM\Debug\Joystick.exp 개체를 생성하고 있습니다.
+         Joystick.vcxproj -> C:\Users\hoon4\Documents\AFS\JSBSIM\Debug\Joystick.dll
+     1>"C:\Users\hoon4\Documents\AFS\JSBSIM\Joystick\Joystick.vcxproj" 프로젝트를 빌드했습니다(Rebuild 대상).
+
+빌드했습니다.
+
+경과 시간: 00:00:08.85

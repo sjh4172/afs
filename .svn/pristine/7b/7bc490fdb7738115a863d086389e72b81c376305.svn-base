@@ -1,0 +1,163 @@
+#include "StickTest.h"
+#include "FGFDMExec.h"
+#include "simgear/misc/sg_path.hxx"
+#include <iostream>
+#include <windows.h>
+#include <fstream>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm>
+#include "STICK.h"
+
+#include <chrono>
+#include <thread>
+
+#ifdef _WIN32
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
+#endif
+
+StickTest::StickTest()
+{
+}
+
+
+StickTest::~StickTest()
+{
+}
+
+template <typename T>
+T clamp(T val, T minVal, T maxVal) {
+	if (val < minVal) return minVal;
+	else if (val > maxVal) return maxVal;
+	else return val;
+}
+
+int main() {
+	using clock = std::chrono::steady_clock;
+
+	JSBSim::FGFDMExec fdm;
+
+	// JSBSim include
+	SGPath rootDir("C:/Users/hoon4/Desktop/sjh/02.AI_Model/jsbsim-1.0.0/jsbsim-1.0.0");
+	fdm.SetRootDir(rootDir);
+	std::cout << "RootDir: " << rootDir.str() << std::endl;
+	if (!fdm.LoadModel("f16", true)) {
+		std::cerr << "Failed to load model" << std::endl;
+		return 1;
+	}
+
+	// Tacview Log
+	int obj_Id = 0x3E8;
+	std::ofstream tacview("C:/Users/hoon4/Desktop/sjh/02.AI_Model/flight.acmi");
+	tacview << "FileType=text/acmi/tacview\n";
+	tacview << "FileVersion=2.2\n\n";
+	tacview << "0,ReferenceTime=2025-08-12T00:00:00Z\n";
+	tacview << "0,Title=Test Flight from Log\n";
+	tacview << "0,Author=ChatGPT\n\n";
+	tacview << std::hex << std::uppercase << obj_Id;
+	tacview << ",Name=TestPlane,Type=Air+FixedWing,Color=Blue,Callsign=Eagle1, \n\n";
+	tacview.flush();
+
+	// 초기 위치/상태
+	fdm.SetPropertyValue("ic/long-gc-deg", 127.0);
+	fdm.SetPropertyValue("ic/lat-geod-deg", 37.0);
+	fdm.SetPropertyValue("ic/h-sl-ft", 15000.0);
+	fdm.SetPropertyValue("ic/psi-true-deg", 90.0);
+	fdm.SetPropertyValue("ic/theta-deg", 0.0);
+	fdm.SetPropertyValue("ic/phi-deg", 0.0);
+	fdm.SetPropertyValue("ic/vt-kts", 350);
+
+	// 초기화
+	// 시간 간격 지정(옵션)
+	fdm.Setdt(0.01); // 100Hz
+	fdm.RunIC();
+
+	// ★ (선택권장) 간단 트림: 종방향 트림 실행 → 수평비행 기준점 확보
+	//    JSBSim은 property로 trim을 트리거할 수 있음 (완료 여부는 simulation/trim-completed로 확인 가능)
+	fdm.SetPropertyValue("simulation/do_simple_trim", 0);  // 0 = Longitudinal trim
+	// trim 완료될 때까지 몇 스텝 진행
+	for (int i = 0; i<400; ++i) {
+		fdm.Run();
+		// 완료 신호가 있으면 중단
+		if (fdm.GetPropertyValue("simulation/trim-completed") != 0.0) break;
+	} // 참고: do_simple_trim 사용 가능. (필요시 ground trim=2 등) :contentReference[oaicite:0]{index=0}
+
+	// 엔진 시동 / 기어 업
+	fdm.SetPropertyValue("propulsion/set-running", -1);
+	fdm.SetPropertyValue("gear/gear-cmd-norm", 0.0);
+	// === 스틱 초기화 ===
+	stickInput.mode = 0;     // 0: 실제 조이스틱 모드
+	InitStick();
+
+	auto next = clock::now();
+	const auto step = std::chrono::duration_cast<clock::duration>(std::chrono::duration<double>(0.01));
+	while (1) {
+		next += step;
+		std::this_thread::sleep_until(next);     // 1× 속도 유지
+
+		// 최신 스틱 값 읽기 → stickCmd 갱신(-1~+1 / 0~1 범위)
+		StepStick();
+
+		// 딱 꽂기: JSBSim FCS에 직접 반영
+		// (대부분의 JSBSim 항공기에서 이 프로퍼티 경로가 표준입니다)
+		fdm.SetPropertyValue("fcs/aileron-cmd-norm", stickCmd.rollCmd);     // 좌우
+		fdm.SetPropertyValue("fcs/elevator-cmd-norm", -stickCmd.pitchCmd);    // 상하
+		fdm.SetPropertyValue("fcs/rudder-cmd-norm", stickCmd.rudderCmd);   // 방향타
+		fdm.SetPropertyValue("fcs/throttle-cmd-norm", stickCmd.throttleCmd); // 0~1
+
+		// 멀티엔진이면 예: fcs/throttle-cmd-norm[0], [1] 각각에 동일 값 세팅
+		// fdm.SetPropertyValue("fcs/throttle-cmd-norm[0]", stickCmd.throttleCmd);
+		// fdm.SetPropertyValue("fcs/throttle-cmd-norm[1]", stickCmd.throttleCmd);
+
+		//std::cout << "roll: " << stickCmd.rollCmd << ", pitch: " << stickCmd.pitchCmd << ", rudder: " << stickCmd.rudderCmd << ", throttle: " << stickCmd.throttleCmd << std::endl;
+		// 시뮬 한 스텝
+		fdm.Run();
+
+		// 1초 간격 로그
+		static double last_log_time = 0.0;
+		double current_time = fdm.GetSimTime();
+		if (current_time - last_log_time >= 1.0) {
+			last_log_time = current_time;
+
+			double lon = fdm.GetPropertyValue("position/long-gc-deg");
+			double lat = fdm.GetPropertyValue("position/lat-geod-deg");
+			double alt_m = fdm.GetPropertyValue("position/h-sl-meters");    // 고도[m]  (※ ft 쓰면 ×0.3048)
+			double heading = fdm.GetPropertyValue("attitude/psi-deg");
+			double spd = fdm.GetPropertyValue("velocities/vtrue-kts");
+			double roll = fdm.GetPropertyValue("attitude/phi-deg");        // 롤[deg] (+: 우익 하강)
+			double pitch = fdm.GetPropertyValue("attitude/theta-deg");      // 피치[deg] (+: 기수 올림)
+			double yaw = fdm.GetPropertyValue("attitude/psi-deg");        // 요/헤딩[deg] (진북 기준 시계방향)
+
+			double tas_mps = fdm.GetPropertyValue("velocities/vtrue-kts") * 0.514444;  // m/s
+
+
+			tacview << "#" << std::fixed << std::setprecision(3) << current_time << "\n";
+			tacview.flush();
+			tacview << std::hex << std::uppercase << obj_Id
+				<< ",T=" << std::fixed << std::setprecision(6) << lon << "|" << lat
+				<< "|" << std::setprecision(2) << alt_m
+				<< "|" << std::setprecision(3) << roll
+				<< "|" << std::setprecision(3) << pitch
+				<< "|" << std::setprecision(3) << yaw
+				//<< ",HDG=" << std::setprecision(3) << heading
+				<< ",TAS=" << std::setprecision(3) << tas_mps << "\n\n";
+			tacview.flush();
+			std::cout << "TEST TEST"<< std::endl;
+
+			std::cout << "roll " << fdm.GetPropertyValue("attitude/phi-deg") << " pitch " << fdm.GetPropertyValue("attitude/theta-deg") << std::endl;
+
+			std::cout << "Time: " << current_time
+				<< ", Lon: " << lon
+				<< ", Lat: " << lat
+				<< ", Alt(m): " << alt_m
+				<< ", Speed(kts): " << tas_mps
+				<< ", Heading(deg): " << heading
+				<< std::endl;
+		}
+	}
+
+	tacview.close();
+	return 0;
+}
